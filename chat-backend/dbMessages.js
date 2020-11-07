@@ -8,4 +8,4 @@ const chatSchema = mongoose.Schema({
   
 });
 
-export default mongoose.model('messageContent', chatSchema);
+export default mongoose.model('messagecontents', chatSchema);

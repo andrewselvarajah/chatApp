@@ -2,13 +2,34 @@
 import express from "express";
 import mongoose from "mongoose";
 import Messages from "./dbMessages.js";
+import Pusher from 'pusher';
+import cors from 'cors';
+
+
 
 //appconfig
 
 const app = express();
-const port = process.env.PORT || 9000;
+const port = process.env.PORT || 49152;
+
+const pusher = new Pusher({
+  appId: "1099971",
+  key: "15e56383a4cb584bebb7",
+  secret: "49a5fa09e5c3db6bafaa",
+  cluster: "us2",
+  useTLS: true
+});
+
+
+
 //middleware
 app.use(express.json());
+app.use(cors());
+
+
+
+
+//socket.io
 
 
 
@@ -20,14 +41,56 @@ mongoose.connect(db_url, {
   useUnifiedTopology: true
 })
 
+const db = mongoose.connection
+db.once('open', () =>{
+  console.log('DB connected');
 
-//socket.io
+
+  //check if the database has changed
+  const msgCollection = db.collection("messagecontents");
+  const changeStream = msgCollection.watch();
+  changeStream.on('change', (change) =>{
+    console.log(change); 
+    //PUSHER checks if a message has been inserted to the database and 
+    if (change.operationType === 'insert'){
+      const messageDetails = change.fullDocument;
+      //console.log("check insert");
+      pusher.trigger('messages', 'inserted',
+        {
+          name:messageDetails.name,
+          message:messageDetails.message,
+          timestamp: messageDetails.timestamp, 
+          received: messageDetails.received,
+        }
+      );
+    }
+    else{
+      console.log("error triggering Pusher");
+    }
+  });
+});
+
+
+
+
 
 
 // api routes
 
-app.get("/", (req,res)=>res.status(200).send("hello world"));
+//gets message from db
+app.get('/messages/sync', (req,res) =>{
+  Messages.find((err, data) => {
+    if(err){
+      res.status(500).send(err)
+    }
+    else{
+      res.status(200).send(data)
+    }
+  });
+});
 
+
+//posts a message to db
 app.post('/messages/new', (req,res) =>{
   const dbMessage = req.body;
   Messages.create(dbMessage, (err, data) => {

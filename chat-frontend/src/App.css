@@ -43,11 +43,13 @@
 .chat_body{
   background-image: url("./img/super_hero_whatsapp_background_by_x_ama_d8fr7iz-fullview.jpg");
   filter: opacity(80%);
+  display: flex;
   flex: 1;
-  background-color: #e8e4e0;
+  flex-direction: column;
   padding: 20px;
-  align-items: center;
-  border-bottom: 1px solid lightgray;
+  background-repeat: repeat;
+  background-position: center;
+  /* border-bottom: 1px solid lightgray; */
   overflow: scroll;
 }
 
