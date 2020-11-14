@@ -1,2 +1,2 @@
 # chatApp
-Chat APP using MERN with firebase
+Chat APP using MERN. Code in master branch
