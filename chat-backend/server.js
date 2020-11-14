@@ -4,17 +4,19 @@ import mongoose from "mongoose";
 import Messages from "./dbMessages.js";
 import Pusher from 'pusher';
 import cors from 'cors';
+import dotenv from 'dotenv';
 
 
 
 //appconfig
 
+dotenv.config();
 const app = express();
 const port = process.env.PORT || 49152;
 
 const pusher = new Pusher({
   appId: "1099971",
-  key: "15e56383a4cb584bebb7",
+  key: process.env.PUSHER_KEY,
   secret: "49a5fa09e5c3db6bafaa",
   cluster: "us2",
   useTLS: true
